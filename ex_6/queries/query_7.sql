@@ -1,0 +1,1 @@
+SELECT s.name, m.mark, sb.name AS subject FROM marks AS m JOIN students AS s ON s.id = m.student_id JOIN subjects AS sb ON sb.id = m.subject_id  WHERE s.group_id = 3 AND m.subject_id = 4 ORDER BY m.mark DESC

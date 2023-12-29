@@ -1,0 +1,1 @@
+SELECT ROUND(AVG(mark), 2) as mark FROM marks

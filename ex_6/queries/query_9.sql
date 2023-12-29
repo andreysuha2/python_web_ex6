@@ -1,0 +1,1 @@
+SELECT sb.name AS subject, st.name AS student FROM subjects AS sb JOIN marks AS m ON m.subject_id = sb.id JOIN students AS st ON st.id = m.student_id WHERE st.id = 23 GROUP BY sb.name

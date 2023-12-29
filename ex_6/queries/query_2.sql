@@ -1,0 +1,1 @@
+SELECT s.name, ROUND(AVG(m.mark), 2) as mark FROM students AS s JOIN marks AS m ON s.id = m.student_id  WHERE m.subject_id = 2 GROUP BY s.name ORDER BY mark DESC LIMIT 1
