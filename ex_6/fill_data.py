@@ -1,6 +1,8 @@
+from ex_6.definitions import PATH_TO_DB
 from datetime import datetime
-from random import randint, choice
+from random import randint
 from faker.providers import BaseProvider
+import calendar
 import faker
 import sqlite3
 
@@ -27,7 +29,7 @@ class CollegeSubjectProvider(BaseProvider):
         ]
         return self.random_element(subjects_list)
 
-def generate_fake_data(count_students: int, count_groups: int, count_subjects: int, count_teachers: int, max_count_points: int):
+def generate_fake_data(count_students: int, count_groups: int, count_subjects: int, count_teachers: int, max_count_points: int) -> tuple():
     fake_students = []
     fake_groups = []
     fake_subjects = []
@@ -50,13 +52,61 @@ def generate_fake_data(count_students: int, count_groups: int, count_subjects: i
         fake_teachers.append(fake_data.name())
         
     for _ in range(count_students):
-        fake_points = []
+        fake_marks = []
         for _ in range(randint(0, max_count_points)):
-            fake_points.append(randint(1, 12))
-        fake_journal.append(fake_points)
+            fake_marks.append(randint(1, 12))
+        fake_journal.append(fake_marks)
         
     return fake_students, fake_groups, fake_subjects, fake_teachers, fake_journal
 
+def prepare_data(fake_students: list, fake_groups: list, fake_subjects: list, fake_teachers: list, fake_journal: list) -> tuple():
+    groups = []
+    for group in fake_groups:
+        groups.append((group, ))
+        
+    studens = []
+    for student in fake_students:
+        studens.append((student, randint(1, COUNT_GROUPS)))
+        
+    teachers = []
+    for teacher in fake_teachers:
+        teachers.append((teacher, ))
+        
+    subjects = []
+    for subject in fake_subjects:
+        subjects.append((subject, randint(1, COUNT_TEACHERS)))
+        
+    marks_journal = []
+    for index, marks in enumerate(fake_journal):
+        student_id = index + 1
+        for mark in marks:
+            subject_id = randint(1, COUNT_SUBJECTS)
+            month = randint(1, 12)
+            day = randint(1, calendar.monthrange(2023, month)[1])
+            mark_date = datetime(2023, month, day)
+            marks_journal.append((mark, student_id, subject_id, mark_date.date()))
+            
+    return groups, studens, teachers, subjects, marks_journal
+
+def insert_data_to_db(groups: list, studets: list, teachers: list, subjects: list, marks: list) -> None:
+    with sqlite3.connect(PATH_TO_DB) as con:
+        cur = con.cursor()
+        sql_to_groups = """INSERT INTO groups(code) VALUES (?)"""
+        cur.executemany(sql_to_groups, groups)
+        
+        sql_to_students = """INSERT INTO students(name, group_id) VALUES (?, ?)"""
+        cur.executemany(sql_to_students, studets)
+        
+        sql_to_teachers = """INSERT INTO teachers(name) VALUES (?)"""
+        cur.executemany(sql_to_teachers, teachers)
+        
+        sql_to_subjects = """INSERT INTO subjects(name, teacher_id) VALUES (?, ?)"""
+        cur.executemany(sql_to_subjects, subjects)
+        
+        sql_to_marks = """INSERT INTO marks(mark, student_id, subject_id, created_at) VALUES (?, ?, ?, ?)"""
+        cur.executemany(sql_to_marks, marks)
+
 if __name__ == "__main__":
-    result = generate_fake_data(COUNT_STUDENTS, COUNT_GROUPS, COUNT_SUBJECTS, COUNT_TEACHERS, MAX_COUNT_POINTS)
-    print(result)
+    fake_data = generate_fake_data(COUNT_STUDENTS, COUNT_GROUPS, COUNT_SUBJECTS, COUNT_TEACHERS, MAX_COUNT_POINTS)
+    prepared_data = prepare_data(*fake_data)
+    insert_data_to_db(*prepared_data)

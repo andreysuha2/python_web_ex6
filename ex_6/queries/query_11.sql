@@ -1,0 +1,1 @@
+SELECT ROUND(AVG(m.mark)) AS mark FROM subjects AS sb JOIN marks AS m ON m.subject_id  = sb.id JOIN teachers AS t ON t.id = sb.teacher_id JOIN students AS st ON st.id = m.student_id WHERE t.id  = 4 AND st.id = 12

@@ -1,0 +1,1 @@
+SELECT s.name AS subject, t.name AS teacher FROM subjects AS s JOIN teachers AS t ON t.id = s.teacher_id WHERE s.teacher_id = 2 
